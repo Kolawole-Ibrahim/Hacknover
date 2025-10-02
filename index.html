@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacknover Cybersecurity Platform: Solution Architecture & Strategy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7F5F0; 
+            color: #3A4750;
+        }
+        .card {
+            background-color: #FFFFFF;
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem;
+        }
+        .accent-bg {
+            background-color: #A6808C; 
+        }
+        .accent-text {
+            color: #A6808C; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 450px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .service-block {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .service-block:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(166, 128, 140, 0.3), 0 4px 6px -4px rgba(166, 128, 140, 0.2);
+        }
+        .service-detail {
+            height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: all 0.4s ease-in-out;
+        }
+        .service-detail.active {
+            height: auto;
+            opacity: 1;
+            padding-top: 1rem;
+        }
+    </style>
+    <!-- Chosen Palette: Custom Minimalist (Warm Neutral: #F7F5F0, Main Accent: #3A4750, Subtle Pop: #A6808C) -->
+    <!-- Application Structure Plan: The SPA uses a thematic, vertical scroll structure. It starts with a problem/solution hook, transitions to an interactive Core Services Explorer (Section 2), presents the Technical Stack Diagram (Section 3), and concludes with an interactive Monetization Strategy viewer (Section 4). This flow mirrors the business plan's progression, moving from "What we offer" to "How we make money," which is logical for stakeholders. -->
+    <!-- Visualization & Content Choices: 
+        - Core Services: Goal=Organize/Inform -> Viz=HTML/CSS Feature Matrix/Relationship Grid -> Interaction=Click-to-reveal (hides/shows the specific AWS backend service) -> Justification=Clearly links business feature to technical solution.
+        - Monetization Tiers: Goal=Compare/Organize -> Viz=Chart.js Stacked Bar Chart -> Interaction=Hover to see specific features/cost focus -> Justification=Visualizes value distribution across tiers effectively.
+        - Architecture Stack: Goal=Organize/Inform -> Viz=HTML/CSS Layered Diagram -> Interaction=None (Static context) -> Justification=Provides necessary context for technical users.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="p-4 md:p-10">
+
+    <div class="max-w-6xl mx-auto">
+        <header class="text-center mb-12 py-8 border-b border-gray-200">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#3A4750] mb-2">Hacknover: Scaling Cybersecurity for African SMEs</h1>
+            <p class="text-xl text-[#96B6C5]">Simplifying Enterprise-Grade Security with AWS Managed Services</p>
+        </header>
+
+        <!-- Section 1: Executive Summary & Problem -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold accent-text mb-6">I. The Value Proposition: From Complexity to Simplicity</h2>
+            <p class="text-lg text-[#3A4750] mb-8">
+                The market requires a solution that abstracts the difficulty and cost of traditional cybersecurity. Our **Managed Security Service Provider (MSSP)** platform delivers a streamlined, integrated service, providing SMEs with a **simple dashboard** ("single pane of glass") and handling all the complex backend operations.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                <div class="card p-6 border-t-4 border-[#A6808C]">
+                    <p class="text-5xl font-extrabold accent-text">90%+</p>
+                    <p class="text-lg font-semibold mt-2 text-[#3A4750]">Complexity Reduction</p>
+                    <p class="text-sm text-[#96B6C5]">Managed services handle the infrastructure load.</p>
+                </div>
+                <div class="card p-6 border-t-4 border-[#A6808C]">
+                    <p class="text-5xl font-extrabold accent-text">Pay-As-You-Go</p>
+                    <p class="text-lg font-semibold mt-2 text-[#3A4750]">Affordable Cost Model</p>
+                    <p class="text-sm text-[#96B6C5]">Leveraging AWS serverless and usage-based billing.</p>
+                </div>
+                <div class="card p-6 border-t-4 border-[#A6808C]">
+                    <p class="text-5xl font-extrabold accent-text">Local Focus</p>
+                    <p class="text-lg font-semibold mt-2 text-[#3A4750]">NDPR & Data Residency</p>
+                    <p class="text-sm text-[#96B6C5]">Tailored for compliance needs in African markets.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Core Services Explorer -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold accent-text mb-6">II. Core Service Engine: Business Feature to AWS Backend</h2>
+            <p class="text-lg text-[#3A4750] mb-8">
+                Our platform provides five essential security features. Click on any feature block to see the specific, highly-available AWS managed service that powers it.
+            </p>
+            
+            <div id="service-grid" class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div id="feat-threat" class="service-block card border border-[#96B6C5] hover:border-[#A6808C]">
+                    <div class="text-center">
+                        <p class="text-4xl">🕵️</p>
+                        <p class="font-bold mt-2">Threat Detection & Monitoring</p>
+                    </div>
+                    <div id="detail-threat" class="service-detail text-center text-sm mt-2">
+                        <p class="font-semibold text-[#3A4750]">AWS Services:</p>
+                        <p class="text-[#A6808C] font-mono">GuardDuty, Security Hub</p>
+                    </div>
+                </div>
+                <div id="feat-cspm" class="service-block card border border-[#96B6C5] hover:border-[#A6808C]">
+                    <div class="text-center">
+                        <p class="text-4xl">📋</p>
+                        <p class="font-bold mt-2">CSPM & Misconfigurations</p>
+                    </div>
+                    <div id="detail-cspm" class="service-detail text-center text-sm mt-2">
+                         <p class="font-semibold text-[#3A4750]">AWS Services:</p>
+                        <p class="text-[#A6808C] font-mono">AWS Config</p>
+                    </div>
+                </div>
+                <div id="feat-vulnerability" class="service-block card border border-[#96B6C5] hover:border-[#A6808C]">
+                    <div class="text-center">
+                        <p class="text-4xl">🐛</p>
+                        <p class="font-bold mt-2">Vulnerability Scanning</p>
+                    </div>
+                    <div id="detail-vulnerability" class="service-detail text-center text-sm mt-2">
+                         <p class="font-semibold text-[#3A4750]">AWS Services:</p>
+                        <p class="text-[#A6808C] font-mono">Amazon Inspector</p>
+                    </div>
+                </div>
+                <div id="feat-iam" class="service-block card border border-[#96B6C5] hover:border-[#A6808C]">
+                    <div class="text-center">
+                        <p class="text-4xl">🔑</p>
+                        <p class="font-bold mt-2">Identity & Access Management</p>
+                    </div>
+                    <div id="detail-iam" class="service-detail text-center text-sm mt-2">
+                         <p class="font-semibold text-[#3A4750]">AWS Services:</p>
+                        <p class="text-[#A6808C] font-mono">AWS IAM</p>
+                    </div>
+                </div>
+                <div id="feat-compliance" class="service-block card border border-[#96B6C5] hover:border-[#A6808C]">
+                    <div class="text-center">
+                        <p class="text-4xl">📜</p>
+                        <p class="font-bold mt-2">Compliance Reporting</p>
+                    </div>
+                    <div id="detail-compliance" class="service-detail text-center text-sm mt-2">
+                         <p class="font-semibold text-[#3A4750]">AWS Services:</p>
+                        <p class="text-[#A6808C] font-mono">Config, Athena, Lambda</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Architecture Stack -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold accent-text mb-6">III. Solution Architecture on AWS: Serverless Foundation</h2>
+            <p class="text-lg text-[#3A4750] mb-8">
+                The entire stack is serverless, ensuring low operational costs and high scalability. This pay-as-you-go approach is critical for maintaining affordability for SMEs.
+            </p>
+
+            <div class="card p-8">
+                <div class="text-center mb-6">
+                    <p class="text-xl font-bold text-[#A6808C]">🌐 Frontend (The Dashboard)</p>
+                    <p class="text-sm text-[#96B6C5]">S3 & CloudFront (Global Delivery)</p>
+                </div>
+
+                <div class="flex items-center justify-center">
+                    <div class="w-1/2 border-l border-r border-dashed border-[#96B6C5] h-6"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center mb-6">
+                    <div class="p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-lg font-bold text-[#A6808C]">🔗 Backend (API)</p>
+                        <p class="text-sm text-[#3A4750] font-mono">API Gateway & AWS Lambda</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-lg font-bold text-[#A6808C]">⚙️ Data Engine</p>
+                        <p class="text-sm text-[#3A4750] font-mono">GuardDuty, Security Hub, Inspector</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-gray-50 border border-gray-200">
+                        <p class="text-lg font-bold text-[#A6808C]">💾 Data Storage</p>
+                        <p class="text-sm text-[#3A4750] font-mono">DynamoDB, S3, Cognito</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-center">
+                    <div class="w-1/2 border-l border-r border-dashed border-[#96B6C5] h-6"></div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <p class="text-xl font-bold text-[#A6808C]">🧑‍💻 Customer Layer</p>
+                    <p class="text-sm text-[#96B6C5]">AWS IAM & Organizations (Least-Privilege)</p>
+                </div>
+            </div>
+             <p class="text-sm mt-4 text-center text-[#96B6C5]">
+                Note on Data Residency: Utilizing the AWS Africa (Cape Town) Region is key for local compliance (e.g., NDPR).
+            </p>
+        </section>
+
+        <!-- Section 4: Monetization Strategy -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold accent-text mb-6">IV. Monetization: Simple & Predictable Pricing</h2>
+            <p class="text-lg text-[#3A4750] mb-8">
+                A simple, predictable pricing model is essential for SME adoption. We utilize subscription tiers based on feature access and asset scale, backed by local African payment gateways.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+                <div class="lg:col-span-2">
+                    <h3 class="text-xl font-bold text-[#3A4750] mb-4">Value Distribution Across Tiers (Feature Allocation)</h3>
+                    <div class="chart-container">
+                        <canvas id="monetizationChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="lg:col-span-1">
+                    <div class="card p-6 bg-gray-50 h-full">
+                        <h3 class="text-xl font-bold text-[#A6808C] mb-4">Revenue & Partnerships</h3>
+                        <p class="font-bold mt-4 text-[#3A4750]">Payment Gateways (Select to Highlight):</p>
+                        <div id="gateway-list" class="space-y-2 mt-2">
+                            <button data-gateway="Paystack" class="w-full text-left p-3 rounded-md bg-white border border-gray-200 hover:bg-[#A6808C] hover:text-white transition duration-200">
+                                Paystack (Local Focus)
+                            </button>
+                            <button data-gateway="Flutterwave" class="w-full text-left p-3 rounded-md bg-white border border-gray-200 hover:bg-[#A6808C] hover:text-white transition duration-200">
+                                Flutterwave (Broad Services)
+                            </button>
+                            <button data-gateway="Stripe" class="w-full text-left p-3 rounded-md bg-white border border-gray-200 hover:bg-[#A6808C] hover:text-white transition duration-200">
+                                Stripe (Global Reliability)
+                            </button>
+                        </div>
+                        <p class="font-bold mt-4 text-[#3A4750]">Additional Strategy:</p>
+                        <ul class="list-disc list-inside text-sm text-[#3A4750] mt-2 space-y-1">
+                            <li>Freemium model for basic health checks.</li>
+                            <li>Local Compliance Reporting as a premium feature.</li>
+                            <li>Partnering with Local IT Consultants for sales channel expansion.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+<script>
+    const APP_DATA = {
+        features: [
+            { name: "Vulnerability Scanning", basic: 20, standard: 70, premium: 100 },
+            { name: "Continuous Threat Monitoring", basic: 0, standard: 30, premium: 100 },
+            { name: "Compliance Reporting (Local NDPR)", basic: 0, standard: 10, premium: 100 },
+            { name: "Central Security Dashboard", basic: 50, standard: 100, premium: 100 }
+        ],
+        gateways: {
+            "Paystack": "Strong local presence in Nigeria/Africa, supports card, bank transfer, USSD, mobile money.",
+            "Flutterwave": "Major African gateway with broad payment options.",
+            "Stripe": "Globally reliable, expanding services in Africa."
+        }
+    };
+
+    function wrapLabels(label) {
+        const maxLen = 16;
+        if (typeof label !== 'string' || label.length <= maxLen) {
+            return label;
+        }
+        const words = label.split(' ');
+        const lines = [];
+        let currentLine = '';
+        for (const word of words) {
+            if ((currentLine + word).length > maxLen && currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = '';
+            }
+            currentLine += word + ' ';
+        }
+        lines.push(currentLine.trim());
+        return lines;
+    }
+
+    const commonTooltipCallback = {
+        title: function(tooltipItems) {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            } else {
+                return label;
+            }
+        }
+    };
+
+    function initMonetizationChart() {
+        const labels = APP_DATA.features.map(f => wrapLabels(f.name));
+        const ctx = document.getElementById('monetizationChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Basic Tier (%)',
+                        data: APP_DATA.features.map(f => f.basic),
+                        backgroundColor: '#96B6C5',
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Standard Tier (%)',
+                        data: APP_DATA.features.map(f => f.standard - f.basic), 
+                        backgroundColor: '#A6808C',
+                        stack: 'Stack 0',
+                    },
+                    {
+                        label: 'Premium Tier (%)',
+                        data: APP_DATA.features.map(f => 100 - f.standard), 
+                        backgroundColor: '#3A4750',
+                        stack: 'Stack 0',
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: 'Security Feature'
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Feature Coverage (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: commonTooltipCallback 
+                    }
+                }
+            }
+        });
+    }
+
+    function initServiceExplorer() {
+        const blocks = document.querySelectorAll('.service-block');
+        const details = document.querySelectorAll('.service-detail');
+
+        blocks.forEach(block => {
+            block.addEventListener('click', () => {
+                const detailId = block.id.replace('feat', 'detail');
+                const currentDetail = document.getElementById(detailId);
+                
+                details.forEach(d => {
+                    if (d.id !== detailId) {
+                        d.classList.remove('active');
+                        d.parentNode.classList.remove('accent-bg', 'text-white', 'shadow-xl');
+                        d.parentNode.classList.add('bg-white');
+                        d.parentNode.querySelector('p').classList.remove('text-white');
+                        d.parentNode.querySelector('p:nth-child(2)').classList.remove('text-white');
+                    }
+                });
+
+                if (currentDetail) {
+                    const isActive = currentDetail.classList.toggle('active');
+                    
+                    if (isActive) {
+                        block.classList.add('accent-bg', 'text-white', 'shadow-xl');
+                        block.classList.remove('bg-white');
+                        block.querySelector('p').classList.add('text-white'); 
+                        block.querySelector('p:nth-child(2)').classList.add('text-white'); 
+                        currentDetail.querySelector('.font-semibold').classList.add('text-white');
+                        currentDetail.querySelector('.font-mono').classList.remove('text-[#A6808C]');
+                        currentDetail.querySelector('.font-mono').classList.add('text-[#F7F5F0]');
+                    } else {
+                        block.classList.remove('accent-bg', 'text-white', 'shadow-xl');
+                        block.classList.add('bg-white');
+                        block.querySelector('p').classList.remove('text-white');
+                        block.querySelector('p:nth-child(2)').classList.remove('text-white');
+                        currentDetail.querySelector('.font-semibold').classList.remove('text-white');
+                        currentDetail.querySelector('.font-mono').classList.add('text-[#A6808C]');
+                        currentDetail.querySelector('.font-mono').classList.remove('text-[#F7F5F0]');
+                    }
+                }
+            });
+        });
+    }
+
+    function initGatewayInteraction() {
+        const gatewayButtons = document.querySelectorAll('#gateway-list button');
+        const revenueCard = document.querySelector('#gateway-list').parentNode;
+        let infoBox = document.createElement('p');
+        infoBox.id = 'gateway-info';
+        infoBox.className = 'text-sm mt-4 p-3 rounded-md bg-white border border-[#A6808C] transition duration-300';
+        infoBox.textContent = 'Select a gateway above for details on its relevance to the African market.';
+        revenueCard.appendChild(infoBox);
+
+        gatewayButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const gateway = button.getAttribute('data-gateway');
+                const description = APP_DATA.gateways[gateway];
+                infoBox.textContent = `${gateway}: ${description}`;
+                infoBox.classList.add('border-[#3A4750]');
+                
+                gatewayButtons.forEach(btn => btn.classList.remove('bg-[#A6808C]', 'text-white'));
+                button.classList.add('bg-[#A6808C]', 'text-white');
+                button.classList.remove('bg-white', 'text-left');
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initMonetizationChart();
+        initServiceExplorer();
+        initGatewayInteraction();
+    });
+</script>
+</body>
+</html>
