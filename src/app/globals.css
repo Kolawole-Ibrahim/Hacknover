@@ -86,3 +86,28 @@ body {
     transform: translateY(0) translateX(0);
   }
 }
+
+/* Animated Gradient Line */
+.gradient-line {
+  background: linear-gradient(
+    0deg,
+    rgba(59, 130, 246, 0) 0%,
+    #3b82f6 15%,
+    #8b5cf6 35%,
+    #ec4899 55%,
+    #f59e0b 75%,
+    #10b981 95%,
+    rgba(16, 185, 129, 0) 100%
+  );
+  transform-origin: top center;
+}
+
+@layer components {
+  .problem-timeline {
+    @apply absolute z-30 h-[110%] -top-10 !w-3 md:w-20 bg-white md:bg-red-500 xl:bg-white;
+  }
+
+  .problem-timeline-wrapper {
+    @apply absolute top-0 xl:left-[47.5vw] md:left-10 left-5 h-full flex justify-center;
+  }
+}
