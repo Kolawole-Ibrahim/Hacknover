@@ -31,9 +31,84 @@ export default function Home() {
   // Security cards animation - Email Security triggers when in view, then others sequentially
   useEffect(() => {
     let hasAnimated = false;
+    const isMobile = window.innerWidth < 1024;
 
     const handleScroll = () => {
-      if (!securitySectionRef.current) return;
+      // Security cards Mobile animation - scroll-triggered upward movement
+      if (isMobile) {
+        if (!securitySectionRef.current) return;
+
+        const sectionRect = securitySectionRef.current.getBoundingClientRect();
+        const sectionTop = sectionRect.top;
+        const sectionHeight = sectionRect.height;
+        const windowHeight = window.innerHeight;
+
+        // Calculate scroll progress (0 to 1)
+        const scrollProgress = Math.max(
+          0,
+          Math.min(
+            1,
+            (windowHeight - sectionTop) / (windowHeight + sectionHeight)
+          )
+        );
+
+        // Sequential animation - each card waits for previous to complete
+        securityCardsRef.current.forEach((card, index) => {
+          if (card) {
+            // Define animation phases for each card
+            let cardProgress = 0;
+
+            if (index === 1) {
+              // Card 1 (Email) - animates first (0% to 25% of scroll)
+              if (scrollProgress <= 0.25) {
+                cardProgress = scrollProgress / 0.25;
+              } else {
+                cardProgress = 1;
+              }
+            } else if (index === 2) {
+              // Card 2 (Web) - animates second (25% to 50% of scroll)
+              if (scrollProgress >= 0.25 && scrollProgress <= 0.5) {
+                cardProgress = (scrollProgress - 0.25) / 0.25;
+              } else if (scrollProgress > 0.5) {
+                cardProgress = 1;
+              }
+            } else if (index === 0) {
+              // Card 0 (Endpoint) - animates third (50% to 75% of scroll)
+              if (scrollProgress >= 0.5 && scrollProgress <= 0.70) {
+                cardProgress = (scrollProgress - 0.5) / 0.20;
+              } else if (scrollProgress > 0.70) {
+                cardProgress = 1;
+              }
+            } else if (index === 3) {
+              // Card 3 (Backup) - animates last (75% to 100% of scroll)
+              if (scrollProgress >= 0.70) {
+                cardProgress = (scrollProgress - 0.70) / 0.30;
+              }
+            }
+
+            const targetY =
+              index == 0
+                ? 300 - index * 10 // Start lower down, move up to final position
+                : index == 1
+                ? -480 - index * 10
+                : index == 2
+                ? -450 - index * 10
+                : index == 3
+                ? -470 - index * 10
+                : -450 - index * 10;
+            const currentY = targetY * cardProgress;
+
+            gsap.set(card, {
+              y: currentY,
+              duration: 0.3,
+            });
+          }
+        });
+        return;
+      }
+
+      // Only animate on large devices (lg and above)
+      if (!securitySectionRef.current || isMobile) return;
 
       const sectionRect = securitySectionRef.current.getBoundingClientRect();
       const sectionTop = sectionRect.top;
@@ -71,8 +146,17 @@ export default function Home() {
               if (card && index !== 1) {
                 // Skip Email Security (already animated)
                 const targetX =
-                  index == 2 ? 460 - index * 40 : index == 3 ? -140 - index * 40 : 200 + (index - 0) * 40;
-                const targetY = index == 2 ? -200 - index * 40 : index == 3 ? 200 - index * 40 : 80 + (index - 0) * 40;
+                  index == 2
+                    ? 460 - index * 40
+                    : index == 3
+                    ? -140 - index * 40
+                    : 200 + (index - 0) * 40;
+                const targetY =
+                  index == 2
+                    ? -200 - index * 40
+                    : index == 3
+                    ? 200 - index * 40
+                    : 80 + (index - 0) * 40;
 
                 gsap.to(card, {
                   x: targetX,
@@ -548,7 +632,7 @@ export default function Home() {
             <div className="absolute bottom-10 left-10 w-16 h-16 bg-purple-100 rounded-full opacity-30 blur-xl"></div>
 
             <div className="relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-gray-100">
-              <div className="text-center mb-12">
+              <div className="text-center lg:mb-12 mb-82">
                 <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
                   Core Security Modules
                 </h2>
@@ -568,14 +652,14 @@ export default function Home() {
                       securityCardsRef.current[0] = el;
                     }
                   }}
-                  className="absolute w-full max-w-sm bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 shadow-2xl border border-blue-200 transform translate-y-16 translate-x-[-160px] rotate-2 z-10"
+                  className="absolute w-full  max-w-sm bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 shadow-2xl border border-blue-200 transform md:translate-y-[340px] translate-y-16 translate-x-[-160px] rotate-2 z-25"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
                       <span className="text-white text-xl">💻</span>
                     </div>
-                    <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                      Active
+                    <div className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                      Available
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -606,10 +690,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">23 devices</span>
-                    <span className="font-semibold text-blue-600">
-                      456 blocked
-                    </span>
+                    <span className="text-gray-500">Real-time protection</span>
+                    <span className="font-semibold text-blue-600">24/7</span>
                   </div>
                 </div>
 
@@ -627,7 +709,7 @@ export default function Home() {
                       <span className="text-white text-xl">📧</span>
                     </div>
                     <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                      Active
+                      Included
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -658,12 +740,12 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">23 devices</span>
-                    <span className="font-semibold text-green-600">
-                      234 blocked
-                    </span>
+                    <span className="text-gray-500">AI-powered filtering</span>
+                    <span className="font-semibold text-green-600">99.9%</span>
                   </div>
                 </div>
+
+                <div className="security-decorative-line"></div>
 
                 {/* Web Security - Second Card */}
                 <div
@@ -678,8 +760,8 @@ export default function Home() {
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
                       <span className="text-white text-xl">🌐</span>
                     </div>
-                    <div className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
-                      Monitoring
+                    <div className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">
+                      Standard
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -709,10 +791,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">23 devices</span>
-                    <span className="font-semibold text-purple-600">
-                      189 blocked
-                    </span>
+                    <span className="text-gray-500">Global network</span>
+                    <span className="font-semibold text-purple-600">200+</span>
                   </div>
                 </div>
 
@@ -729,8 +809,8 @@ export default function Home() {
                     <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
                       <span className="text-white text-xl">💾</span>
                     </div>
-                    <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                      Active
+                    <div className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                      Essential
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-gray-900 mb-2">
@@ -760,10 +840,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-500">23 devices</span>
-                    <span className="font-semibold text-orange-600">
-                      Protected
-                    </span>
+                    <span className="text-gray-500">Recovery time</span>
+                    <span className="font-semibold text-orange-600">1hr</span>
                   </div>
                 </div>
               </div>
@@ -772,31 +850,31 @@ export default function Home() {
               <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-600 mb-1">
-                    1,247
+                    99.9%
                   </div>
                   <div className="text-sm text-gray-600">
-                    Total Threats Blocked
+                    Threat Detection Rate
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-600 mb-1">
-                    4
+                    24/7
                   </div>
                   <div className="text-sm text-gray-600">
-                    Active Protections
+                    Monitoring Coverage
                   </div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-600 mb-1">
-                    23
+                    1min
                   </div>
-                  <div className="text-sm text-gray-600">Devices Protected</div>
+                  <div className="text-sm text-gray-600">Response Time</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-orange-600 mb-1">
-                    95%
+                    100%
                   </div>
-                  <div className="text-sm text-gray-600">Compliance Score</div>
+                  <div className="text-sm text-gray-600">Uptime Guarantee</div>
                 </div>
               </div>
             </div>
