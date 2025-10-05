@@ -35,8 +35,10 @@ export default function Navigation() {
   return (
     <nav
       className={`shadow-sm ${
-        isMounted && isScrolled ? "lg:bg-white" : "lg:bg-transparent"
-      } border-transparent transition-all duration-100 ease-in-out sticky top-0 left-4 mr-7 rounded-lg ml-7 z-50`}
+        isMounted && isScrolled
+          ? "bg-white lg:bg-white md:!bg-white"
+          : " bg-transparent "
+      } border-transparent transition-all duration-200 ease-in-out sticky top-0 left-4 mr-7 rounded-lg ml-7 z-50`}
     >
       <div
         className={`${
@@ -153,8 +155,8 @@ export default function Navigation() {
         <div
           className={`flex flex-row space-x-4 transition-all duration-500 hidden lg:block ${
             isMounted && isScrolled
-              ? "transform lg:translate-x-[1090px] lg:-translate-y-28"
-              : "transform lg:translate-x-[1090px] lg:-translate-y-12"
+              ? "transform lg:translate-x-[1090px] lg:-translate-y-30"
+              : "transform lg:translate-x-[1090px] lg:-translate-y-14"
           }`}
         >
           {/* Contact Us Link */}

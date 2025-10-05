@@ -104,10 +104,95 @@ body {
 
 @layer components {
   .problem-timeline {
-    @apply absolute z-30 h-[110%] -top-10 !w-3 md:w-20 bg-white md:bg-red-500 xl:bg-white;
+    @apply absolute md:z-9 h-[150%] -top-10 !w-3 md:w-20 bg-white md:bg-red-500 xl:bg-white;
   }
 
   .problem-timeline-wrapper {
-    @apply absolute top-0 xl:left-[47.5vw] md:left-10 left-5 h-full flex justify-center;
+    @apply absolute top-0 xl:left-[47.5vw] left-13 z-0  h-full flex justify-center;
   }
+
+  /* Security Dashboard Animations */
+  .security-card-hover {
+    @apply transition-all duration-500 ease-out;
+  }
+
+  .security-card-hover:hover {
+    @apply transform -translate-y-2 shadow-2xl;
+  }
+
+  .threat-pulse {
+    animation: threatPulse 2s infinite;
+  }
+
+  .security-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+
+  .metric-counter {
+    animation: countUp 2s ease-out;
+  }
+
+  .security-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .threat-indicator {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .threat-indicator:hover {
+    @apply transform scale-105 shadow-lg;
+  }
+}
+
+@keyframes threatPulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes securityFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.security-fade-in {
+  animation: securityFadeIn 0.8s ease-out forwards;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.stacked-card {
+  transform-style: preserve-3d;
+  transition: all 0.3s ease;
+}
+
+.stacked-card:hover {
+  transform: translateY(-10px) rotate(0deg) !important;
+  z-index: 50 !important;
 }
