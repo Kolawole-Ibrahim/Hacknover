@@ -91,6 +91,20 @@ export default function SetupPage() {
     }
   };
 
+  // Check if step 1 is valid for button state
+  const isStep1Valid = () => {
+    if (currentStep !== 1) return true;
+
+    const hasOrganizationName = formData.organizationName.trim().length > 0;
+    const hasValidDomain =
+      !formData.domain ||
+      /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/.test(
+        formData.domain
+      );
+
+    return hasOrganizationName && hasValidDomain;
+  };
+
   const handleComplianceToggle = (framework: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -115,7 +129,8 @@ export default function SetupPage() {
 
         {/* Progress Steps */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center justify-between">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
@@ -146,6 +161,46 @@ export default function SetupPage() {
                 )}
               </div>
             ))}
+          </div>
+
+          {/* Mobile Layout */}
+          <div className="md:hidden">
+            <div className="relative">
+              {steps.map((step, index) => (
+                <div key={step.id} className="flex items-start relative">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`flex items-center justify-center w-8 h-8 rounded-full border-2 flex-shrink-0 ${
+                        currentStep >= step.id
+                          ? "bg-blue-600 border-blue-600 text-white"
+                          : "border-gray-300 text-gray-500"
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{step.id}</span>
+                    </div>
+                    {index < steps.length - 1 && (
+                      <div
+                        className={`w-0.5 h-8 mt-2 ${
+                          currentStep > step.id ? "bg-blue-600" : "bg-gray-300"
+                        }`}
+                      />
+                    )}
+                  </div>
+                  <div className="ml-3 flex-1 pb-6">
+                    <p
+                      className={`text-sm font-medium ${
+                        currentStep >= step.id
+                          ? "text-blue-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {step.title}
+                    </p>
+                    <p className="text-xs text-gray-500">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -180,7 +235,7 @@ export default function SetupPage() {
                     onChange={(e) =>
                       handleInputChange("organizationName", e.target.value)
                     }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full text-gray-900 placeholder:text-gray-400 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                       errors.organizationName
                         ? "border-red-300 bg-red-50"
                         : "border-gray-300 hover:border-gray-400"
@@ -208,7 +263,7 @@ export default function SetupPage() {
                     onChange={(e) =>
                       handleInputChange("domain", e.target.value)
                     }
-                    className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    className={`w-full text-gray-900 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors placeholder:text-gray-400 ${
                       errors.domain
                         ? "border-red-300 bg-red-50"
                         : "border-gray-300 hover:border-gray-400"
@@ -238,10 +293,12 @@ export default function SetupPage() {
                     onChange={(e) =>
                       handleInputChange("industry", e.target.value)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors text-gray-900"
                     aria-label="Select your industry"
                   >
-                    <option value="">Select your industry</option>
+                    <option value="" className="text-gray-400">
+                      Select your industry
+                    </option>
                     <option value="technology">💻 Technology</option>
                     <option value="finance">💰 Finance & Banking</option>
                     <option value="healthcare">🏥 Healthcare</option>
@@ -269,10 +326,12 @@ export default function SetupPage() {
                     onChange={(e) =>
                       handleInputChange("employeeCount", e.target.value)
                     }
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors text-gray-900"
                     aria-label="Select employee count"
                   >
-                    <option value="">Select employee count</option>
+                    <option value="" className="text-gray-400">
+                      Select employee count
+                    </option>
                     <option value="1-10">👤 1-10 employees (Startup)</option>
                     <option value="11-50">
                       👥 11-50 employees (Small Business)
@@ -481,17 +540,11 @@ export default function SetupPage() {
               <button
                 onClick={handleNext}
                 className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  currentStep === 1 &&
-                  (!formData.organizationName.trim() ||
-                    Object.keys(errors).length > 0)
+                  !isStep1Valid()
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-blue-600 text-white hover:bg-blue-700"
                 }`}
-                disabled={
-                  currentStep === 1 &&
-                  (!formData.organizationName.trim() ||
-                    Object.keys(errors).length > 0)
-                }
+                disabled={!isStep1Valid()}
               >
                 Next
               </button>
