@@ -1,0 +1,285 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core Organization Model (SMEs)
+model Organization {
+  id                String   @id @default(cuid())
+  name              String
+  domain            String?  @unique
+  subscriptionTier  String   @default("basic") // basic, professional, enterprise
+  status            String   @default("active") // active, suspended, cancelled
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relationships
+  users             User[]
+  securityModules   SecurityModule[]
+  securityEvents    SecurityEvent[]
+  complianceReports ComplianceReport[]
+  backupJobs        BackupJob[]
+  auditLogs         AuditLog[]
+  
+  @@map("organizations")
+}
+
+// User Model (SME employees)
+model User {
+  id             String   @id @default(cuid())
+  organizationId String
+  email          String   @unique
+  name           String?
+  role           String   @default("user") // admin, user, viewer
+  mfaEnabled     Boolean  @default(false)
+  mfaSecret      String?
+  lastLogin      DateTime?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sessions       Session[]
+  accounts       Account[]
+  
+  @@map("users")
+}
+
+// NextAuth.js Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Security Modules Status
+model SecurityModule {
+  id             String   @id @default(cuid())
+  organizationId String
+  moduleType     String   // endpoint, email, web, backup
+  status         String   @default("inactive") // active, inactive, error, updating
+  configuration  Json?    // Module-specific configuration
+  lastScan       DateTime?
+  version        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@unique([organizationId, moduleType])
+  @@map("security_modules")
+}
+
+// Security Events/Alerts
+model SecurityEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  severity       String   // low, medium, high, critical
+  eventType      String   // malware, phishing, ransomware, data_breach, etc.
+  title          String
+  description    String   @db.Text
+  source         String   // endpoint, email, web, backup
+  resolved       Boolean  @default(false)
+  resolvedAt     DateTime?
+  resolvedBy     String?
+  metadata       Json?    // Additional event data
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@map("security_events")
+}
+
+// Compliance Reports
+model ComplianceReport {
+  id             String   @id @default(cuid())
+  organizationId String
+  framework      String   // NDPR, POPIA, GDPR
+  reportType     String   // audit, assessment, breach_notification
+  status         String   @default("draft") // draft, submitted, approved, rejected
+  data           Json     // Report content
+  generatedAt    DateTime @default(now())
+  submittedAt    DateTime?
+  approvedAt     DateTime?
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@map("compliance_reports")
+}
+
+// Backup Jobs
+model BackupJob {
+  id             String   @id @default(cuid())
+  organizationId String
+  jobType        String   // full, incremental, differential
+  status         String   @default("pending") // pending, running, completed, failed
+  sourcePath     String
+  destinationPath String
+  size           BigInt?
+  duration       Int?     // Duration in seconds
+  errorMessage   String?
+  startedAt      DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@map("backup_jobs")
+}
+
+// Audit Logs
+model AuditLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String?
+  action         String   // login, logout, config_change, security_event, etc.
+  resource       String?  // What was affected
+  details        Json?    // Additional details
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+  
+  // Relationships
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@map("audit_logs")
+}
+
+// Endpoint Devices
+model EndpointDevice {
+  id             String   @id @default(cuid())
+  organizationId String
+  deviceId       String   @unique
+  deviceName     String
+  deviceType     String   // windows, linux, macos, android, ios
+  osVersion      String?
+  agentVersion   String?
+  lastSeen       DateTime @default(now())
+  status         String   @default("online") // online, offline, error
+  threatLevel    String   @default("low") // low, medium, high, critical
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@map("endpoint_devices")
+}
+
+// Email Security Events
+model EmailEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  messageId      String
+  sender         String
+  recipient      String
+  subject        String?
+  threatType     String?  // spam, phishing, malware, clean
+  action         String   // delivered, quarantined, blocked
+  score          Float?
+  createdAt      DateTime @default(now())
+  
+  @@map("email_events")
+}
+
+// Web Security Events
+model WebEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  url            String
+  domain         String
+  category       String?  // malware, phishing, adult, etc.
+  action         String   // allowed, blocked, warned
+  userAgent      String?
+  ipAddress      String?
+  createdAt      DateTime @default(now())
+  
+  @@map("web_events")
+}
+
+// SIEM Logs (for Elasticsearch integration)
+model SiemLog {
+  id             String   @id @default(cuid())
+  organizationId String
+  logType        String   // auth, network, system, application
+  severity       String   // info, warning, error, critical
+  message        String   @db.Text
+  source         String
+  timestamp      DateTime @default(now())
+  metadata       Json?
+  
+  @@map("siem_logs")
+}
+
+// Threat Intelligence
+model ThreatIntelligence {
+  id          String   @id @default(cuid())
+  indicator   String   @unique // IP, domain, hash, etc.
+  indicatorType String // ip, domain, hash, url
+  threatType  String   // malware, phishing, botnet, etc.
+  confidence  Float    // 0.0 to 1.0
+  source      String
+  firstSeen   DateTime @default(now())
+  lastSeen    DateTime @default(now())
+  isActive    Boolean  @default(true)
+  
+  @@map("threat_intelligence")
+}
+
+// ML Anomaly Detection Results
+model AnomalyDetection {
+  id             String   @id @default(cuid())
+  organizationId String
+  modelType      String   // network, user_behavior, system
+  anomalyScore   Float
+  confidence     Float
+  description    String
+  isAnomaly      Boolean
+  investigated   Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  
+  @@map("anomaly_detections")
+}
