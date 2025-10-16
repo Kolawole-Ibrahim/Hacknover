@@ -53,10 +53,14 @@ export default function Navigation() {
           <div className="flex border-b rounded-lg px-4 py-2 justify-between items-center">
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-2sm">AH</span>
+                <img
+                  src="/images/hacknover_logo.jpeg"
+                  alt="HackNover logo"
+                  className="w-12 h-12"
+                />
               </div>
               <span className="font-bold text-2xl text-gray-900">
-                AFRIHACKBOX
+                HackNover
               </span>
             </Link>
 
