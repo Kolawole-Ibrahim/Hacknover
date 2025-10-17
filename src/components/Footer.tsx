@@ -14,8 +14,12 @@ export default function Footer() {
             {/* Brand Section */}
             <div className="lg:col-span-4">
               <div className="flex items-center space-x-3 mb-8">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <span className="text-white text-2xl font-bold">H</span>
+                <div className="w-16 h-16 rounded-lg flex items-center justify-center shadow-lg">
+                  <img
+                    src="/images/hacknover_logo.jpeg"
+                    alt="HackNover logo"
+                    className="w-16 h-16 rounded-lg"
+                  />
                 </div>
                 <span className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                   HackNover
