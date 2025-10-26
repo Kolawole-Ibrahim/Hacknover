@@ -115,7 +115,7 @@ export default function Navigation() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`block px-4 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
                     pathname === "/contact"
-                      ? "bg-blue-100 text-blue-700"
+                      ? "bg-blue-100 text-red-700"
                       : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
                 >
@@ -129,7 +129,7 @@ export default function Navigation() {
           <div
             className={`relative px-4 transition-all duration-700 ease-in-out hidden lg:block ${
               isMounted && isScrolled
-                ? "transform translate-x-180 -translate-y-17"
+                ? "transform translate-x-150 -translate-y-17 xl:translate-x-180"
                 : "transform translate-x-0 translate-y-0"
             }`}
           >
@@ -159,8 +159,8 @@ export default function Navigation() {
         <div
           className={`flex flex-row space-x-4 transition-all duration-500 hidden lg:block ${
             isMounted && isScrolled
-              ? "transform lg:translate-x-[1090px] lg:-translate-y-30"
-              : "transform lg:translate-x-[1090px] lg:-translate-y-14"
+              ? "transform lg:translate-x-[970px] lg:-translate-y-30 xl:translate-x-[1090px]"
+              : "transform lg:translate-x-[890px] lg:-translate-y-14 xl:translate-x-[1190px]"
           }`}
         >
           {/* Contact Us Link */}
